@@ -41,9 +41,9 @@
                             </div>
                             
                             <div class="panel-body">
-                            <form action="/board/modify" method="post">
+                            <form method="post">
                            		<div class="form-group">
-                           			<label>Bno</label><input class="form-control" name='Bno' value='<c:out value="${board.bno}"/>'readonly>
+                           			<label>Bno</label><input class="form-control" name='bno' value='<c:out value="${board.bno}"/>'readonly>
                            		</div>
                            		<div class="form-group">
                            			<label>Title</label><input class="form-control" name='title' value='<c:out value="${board.title}"/>'>
@@ -63,9 +63,11 @@
                            			<label>Update Date</label>
                            			<input class="form-control" name='updateDate' value='<fmt:formatDate pattern="yyyy/MM/dd" value="${board.regdate }"/>' readonly>
                            		</div>
-                           		<button type="submit" oper="modify" class="btn btn-default">Modify Button</button>
-                           		<button type="submit" oper="remove" class="btn btn-default">Remove Button</button>
-                           		<button type="list" oper="list" class="btn btn-default">List</button>
+                           		<input type='hidden' name='pageNum' value='<c:out value="${cri.pageNum}"></c:out>'>
+                           		<input type='hidden' name='amount' value='<c:out value="${cri.amount}"></c:out>'>
+                           		<button type="submit" fromaction="modify" class="btn btn-default">Modify Button</button>
+                           		<button type="submit" formaction="remove" class="btn btn-default">Remove Button</button>
+                           		<button type="list" formaction="list" class="btn btn-default">List</button>
                             </form>
                             </div>
                         </div>
@@ -88,7 +90,7 @@
 
 </body>
 <script type="text/javascript">
-	$(document).ready(function(){
+	/* $(document).ready(function(){
 		var formObj = $("form");
 		
 		$('button').on("click", function(e){
@@ -101,11 +103,16 @@
 			if(operation === 'remove') {
 				formObj.attr("action", "/board/remove");
 			}else if(operation === 'list'){
-				formObj.attr("action", "/board/list").attr("method", "get"));
+				formObj.attr("action", "/board/list").attr("method", "get");
+				var pageNumTag = $("input[name='pageNum']").clone();
+				var amountTag = $("input[name='amount']").clone();
+		
 				formObj.empty();
+				formObj.append(pageNumTag);
+				formObj.append(amountTag);
 			}
 			formObj.submit();
 		})
-	})
+	}) */
 </script>
 </html>

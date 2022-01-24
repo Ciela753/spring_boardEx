@@ -58,6 +58,8 @@
                            		<button oper='list' class="btn btn-default">List</button>
                            		<form action="/board/modify" method="get" id="operForm">
                            			<input type="hidden" id='bno' name='bno' value='<c:out value="${board.bno}"/>'>
+                           			<input type='hidden' name='pageNum' value='<c:out value="${cri.pageNum}"></c:out>'>
+                           			<input type='hidden' name='amount' value='<c:out value="${cri.amount}"></c:out>'>
                            		</form>
                             </div>
                         </div>
