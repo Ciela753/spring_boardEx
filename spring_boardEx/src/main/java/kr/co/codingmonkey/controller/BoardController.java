@@ -38,7 +38,15 @@ public class BoardController {
 		
 		//url상 데이터 유지
 		model.addAttribute("list", service.getList(cri));
-		model.addAttribute("page", new PageDTO(cri, 123));
+//		model.addAttribute("page", new PageDTO(cri, 123));
+		
+		int total = service.getTotal(cri);
+		
+		log.info("total: "+total);
+		
+		model.addAttribute("page", new PageDTO(cri, total));
+		
+		
 	}
 	
 	@GetMapping("/register")
