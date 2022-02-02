@@ -62,13 +62,25 @@
                            			<input type='hidden' name='amount' value='<c:out value="${cri.amount}"></c:out>'>
                            		</form>
                             </div>
+                            <div class="card shadow mb-4">
+                            <div class="card-header py-3 clearfix">
+                                <h6 class="m-0 font-weight-bold text-primary"><i class="fa fa-comments">Reply</i></h6>
+                                <button class="btn btn-primary float-right btn-sm" id="btnRegfrm">New Reply</button>
+                            </div>                                                               
+                                <ul id="replyUL" class="list-group list-group-flush">                                	                                
+                                </ul>
+                                <div class="card-footer text-center">
+                                	<button class="btn btn-primary btn-block"id="btnShowMore">더보기</button>                                	
+                                </div>
+                            </div>
+                </div>
+    </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
-    </div>
+	
 
     <!-- Bootstrap core JavaScript-->
     <script src="/resources/vendor/jquery/jquery.min.js"></script>
@@ -81,7 +93,53 @@
     <script src="/resources/js/sb-admin-2.min.js"></script>
 
 </body>
+<script src="/resources/js/reply.js"></script>
 <script type="text/javascript">
+$(document).ready(function() {
+	console.log(replyService);
+});
+
+console.log("================");
+console.log("JS Test");
+
+var bnoValue = '<c:out value="${board.bno}"/>';
+
+replyService.remove(23, function(count) {
+	console.log(count);
+	
+	if(count === "success") {
+		alert("removed");
+	}
+}, function(err) {
+	alert('Error...');
+});
+
+replyService.update({
+	rno : 22,
+	bno : bnoValue,
+	reply : "Modified Reply...."
+}, function(result){
+	alert("수정 완료...");
+});
+
+replyService.get(10, function(data){
+	console.log(data);
+})
+
+replyService.getList({bno:bnoValue, page:1}, function(list){
+	for(var i=0, len= list.length||0; i<len; i++) {
+		console.log(list[i]);
+	}
+});
+
+replyService.add(
+	{reply:"ts Test", replyer:"tester", bno:bnoValue}
+	,
+	function(result){
+		alert("RESULT: result");
+	}
+);
+
 $(document).ready(function(){
 	var operForm = $("#operForm");
 	
