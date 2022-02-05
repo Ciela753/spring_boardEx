@@ -3,6 +3,7 @@ package kr.co.codingmonkey.service;
 import java.util.List;
 
 import kr.co.codingmonkey.domain.Criteria;
+import kr.co.codingmonkey.domain.ReplyPageDTO;
 import kr.co.codingmonkey.domain.ReplyVO;
 
 public interface ReplyService {

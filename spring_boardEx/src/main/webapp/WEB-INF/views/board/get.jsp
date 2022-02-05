@@ -33,7 +33,6 @@
             <div class="card-body p-0">
                 <!-- Nested Row within Card Body -->
                 <div class="row">
-                    <div class="col-lg-5 d-none d-lg-block bg-register-image"></div>
                     <div class="col-lg-7">
                         <div class="p-5">
                             <div class="text-center">
@@ -73,14 +72,49 @@
                                 	<button class="btn btn-primary btn-block"id="btnShowMore">더보기</button>                                	
                                 </div>
                             </div>
-                </div>
-    </div>
+                		</div>
+    					</div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-	
+<!-- List Modal-->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">ReplyModal</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="reply" class="text-dark font-weight-bold">Reply</label>
+                    <input class="form-control" id="reply" name="reply" placeholder="new Reply!!">
+               </div>
+               <div class="form-group">
+                    <label for="reply" class="text-dark font-weight-bold">Replyer</label>
+                    <input class="form-control" id="replyer" name="replyer" placeholder="Replyer!!">
+               </div>
+               <div class="form-group">
+                    <label for="reply" class="text-dark font-weight-bold">Reply</label>
+                    <input class="form-control" id="replyDate" name="replyDate" placeholder="">
+               </div>
+            </div>
+            <div class="modal-footer text-right">
+                <div class="btns">
+                    <button class="btn btn-primary" id="btnReg">Register</button>
+                    <button class="btn btn-warning" id="btnMod">Modify</button>
+                    <button class="btn btn-danger" id="btnRmv">Remove</button>
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>	
 
     <!-- Bootstrap core JavaScript-->
     <script src="/resources/vendor/jquery/jquery.min.js"></script>
@@ -94,9 +128,69 @@
 
 </body>
 <script src="/resources/js/reply.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
 <script type="text/javascript">
 $(document).ready(function() {
 	console.log(replyService);
+	
+	$("#btnRegfrm").click(function() {
+        $("#myModal").modal("show");
+    })
+    
+     var bno = '${board.bno}';
+     var $ul = $("#replyUL");
+    
+     $("#btnReg").click(function() {
+            
+            var reply = {reply: $("#reply").val(), replyer:$("#replyer").val(), bno:bno};
+            replyService.add(reply,                
+                function(data) {
+                    alert(data)
+                    var count = $ul.find("input").length;
+                    $ul.html("");
+                    $("#myModal").find("input").val("");
+                    $("#myModal").modal("hide");
+                    showList(1);
+                }
+            );
+        })
+        
+    $ul.on("click", "li", function(){
+    	var rno = $(this).data("rno");
+    	replyService.get(rno, function(data){
+    		$("#reply").val(data.reply);
+    		$("#replyer").val(data.replyer);
+    		$("#replyDate").val(replyService.displayTime(data.replyDate)).prop("readonly", true).closest("div").show();
+    		$(".btns button").hide();
+    		$("#btnMod, #btnRmv").show();
+    		$("#myModal").data("rno", data.rno).modal("show");
+    	}); 
+    })
+        
+    $('#btnRmv').click(function(){
+    	var rno = $("#myModal").data("rno");
+    	replyService.remove(rno, function(data){
+    		alert(data);
+    		$("#myModal").modal("hide");
+    		$ul.find("li").each(function(){
+    			if($(this).data("rno") === rno) {
+    				$(this).remove();
+    			}
+    		})
+    	})
+    });
+    
+     $("#btnMod").click(function(){
+              var reply = {reply: $("#reply").val(), rno:$("#myModal").data("rno"), replyer:$("#replyer").val()};
+              replyService.modify(reply,                
+                  function(data) {
+                      alert(data)
+                      $("#myModal").modal("hide");
+                      $ul.find()
+                      showList(1);
+                 
+                  })
+          })
 });
 
 console.log("================");
@@ -104,7 +198,7 @@ console.log("JS Test");
 
 var bnoValue = '<c:out value="${board.bno}"/>';
 
-replyService.remove(23, function(count) {
+/* replyService.remove(23, function(count) {
 	console.log(count);
 	
 	if(count === "success") {
@@ -139,7 +233,7 @@ replyService.add(
 		alert("RESULT: result");
 	}
 );
-
+ */
 $(document).ready(function(){
 	var operForm = $("#operForm");
 	
@@ -151,6 +245,40 @@ $(document).ready(function(){
 		operForm.attr("action", "/board/list")
 		operForm.submit();	
 	});
+});
+
+$(function() {
+	console.log(replyService);
+    var bno = '${board.bno}';
+    var $ul = $("#replyUL");
+    showList();
+    function showList(lastRno, amount) {
+        replyService.getList({bno:bno, lastRno:lastRno, amount:amount},
+         function(data) {
+            console.log(data)
+             if(!data) {
+                 return;
+             }
+             if(data.length == 0) {
+                $("#btnShowMore").text("댓글이 없습니다.").prop("disabled", true);
+                return;
+             }
+             var str ="";
+             for(var i in data) {
+                 str +=' <li class="list-group-item" data-rno="'+data[i].rno+'">'
+                 str +='    <div class="clearfix">'
+                 str +='        <div class="float-left text-dark font-weight-bold">'+data[i].replyer+'</div>'
+                 str +='            <div class="float-right">'+replyService.displayTime(data[i].replyDate)+'</div>'
+                 str +='        </div>'
+                 str +='        <div>'+data[i].reply+'</div>'
+                 str +='</li>'
+             }
+             $("#btnShowMore").text("더보기").prop("disabled", false);
+             $ul.append(str);
+             console.log(amount);
+           }
+        )
+    }
 });
 </script>
 </html>

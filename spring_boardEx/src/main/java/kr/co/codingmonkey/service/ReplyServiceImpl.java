@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import kr.co.codingmonkey.domain.Criteria;
+import kr.co.codingmonkey.domain.ReplyPageDTO;
 import kr.co.codingmonkey.domain.ReplyVO;
 import kr.co.codingmonkey.mapper.ReplyMapper;
 import lombok.Setter;
@@ -51,5 +52,4 @@ public class ReplyServiceImpl implements ReplyService {
 		
 		return mapper.getListWithPaging(cri, bno);
 	}
-
 }
