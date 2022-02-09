@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.codingmonkey.mapper.BoardMapper">
+	<select id="getList" resultType="kr.co.codingmonkey.domain.BoardVO">
+		SELECT * FROM TBL_BOARD WHERE BNO > 0
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO TBL_BOARD (BNO, TITLE, CONTENT, WRITER)
+		VALUES (SEQ_BOARD.NEXTVAL, #{title}, #{content}, #{writer})
+	</insert>
+	
+	<insert id="insertSelectKey">
+		<selectKey keyProperty="bno" order="BEFORE" resultType="long">
+			SELECT SEQ_BOARD.NEXTVAL FROM DUAL
+		</selectKey>
+		INSERT INTO TBL_BOARD (BNO, TITLE, CONTENT, WRITER)
+		VALUES (#{bno}, #{title}, #{content}, #{writer})
+	</insert>
+	
+	<select id="read" resultType="kr.co.codingmonkey.domain.BoardVO">
+		SELECT * FROM TBL_BOARD WHERE BNO = #{bno}
+	</select>
+	
+	<delete id="delete">
+		DELETE FROM TBL_BOARD WHERE BNO = #{bno}
+	</delete>
+	
+	<update id="update">
+		UPDATE TBL_BOARD
+		SET TITLE=#{title},
+			CONTENT=#{content},
+			WRITER=#{writer},
+			UPDATEDATE = SYSDATE
+		WHERE BNO = #{bno}
+	</update>
+	
+	<sql id="criteria">
+		<trim prefix="(" suffix=") AND " prefixOverrides="OR">
+			<foreach item="type" collection="typeArr">
+				<trim prefix="OR">
+					<choose>
+						<when test="type == 'T'.toString()">
+							title like '%'||#{keyword}||'%'
+						</when>
+						<when test="type == 'C'.toString()">
+							content like '%'||#{keyword}||'%'
+						</when>
+						<when test="type == 'W'.toString()">
+							writer like '%'||#{keyword}||'%'
+						</when>
+					</choose>
+				</trim>
+			</foreach>
+		</trim>
+	</sql>
+	
+	<select id="getListWithPaging" resultType="kr.co.codingmonkey.domain.BoardVO">
+		SELECT 
+		BNO, TITLE, CONTENT, WRITER, REGDATE, UPDATEDATE
+		FROM
+		    (SELECT /*+INDEX_DESC(TBL_BOARD PK_BOARD) */
+		    ROWNUM RN, BNO, TITLE, CONTENT, WRITER, REGDATE, UPDATEDATE
+		    FROM
+		    TBL_BOARD
+		    WHERE 
+		<include refid="criteria"/>
+			rownum &lt;= #{pageNum} * #{amount}
+			)
+		where rn > (#{pageNum}-1) * #{amount}
+	</select>
+	
+	<select id="getTotalCount" resultType="int">
+		SELECT COUNT(*) FROM TBL_BOARD WHERE BNO > 0
+	</select>
+</mapper>

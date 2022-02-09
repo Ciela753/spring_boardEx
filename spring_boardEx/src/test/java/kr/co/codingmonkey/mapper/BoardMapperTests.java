@@ -38,6 +38,19 @@ public class BoardMapperTests {
 	}
 	
 	@Test
+	public void testCreateInsert() {
+		for(int i=0; i<10; i++) {
+			BoardVO board = new BoardVO();
+			board.setTitle("새로 작정하는 글"+i);
+			board.setContent("새로 작성하는 내용"+i);
+			board.setWriter("newbie"+i);
+			
+			mapper.insert(board);
+			log.info(board);
+		}
+	}
+	
+	@Test
 	public void tesetInsertSelectKey() {
 		BoardVO board = new BoardVO();
 		board.setTitle("새로 작성하는 글 select key");

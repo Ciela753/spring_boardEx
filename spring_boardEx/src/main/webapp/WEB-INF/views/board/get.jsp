@@ -15,13 +15,13 @@
     <title>SB Admin 2 - Register</title>
 
     <!-- Custom fonts for this template-->
-    <link href="/resources/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="${pageContext.request.contextPath}/resources/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
     <link
         href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
         rel="stylesheet">
 
     <!-- Custom styles for this template-->
-    <link href="/resources/css/sb-admin-2.min.css" rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/resources/css/sb-admin-2.min.css" rel="stylesheet">
 
 </head>
 
@@ -117,23 +117,27 @@
 </div>	
 
     <!-- Bootstrap core JavaScript-->
-    <script src="/resources/vendor/jquery/jquery.min.js"></script>
-    <script src="/resources/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="${pageContext.request.contextPath}/resources/vendor/jquery/jquery.min.js"></script>
+    <script src="${pageContext.request.contextPath}/resources/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 
     <!-- Core plugin JavaScript-->
-    <script src="/resources/vendor/jquery-easing/jquery.easing.min.js"></script>
+    <script src="${pageContext.request.contextPath}/resources/vendor/jquery-easing/jquery.easing.min.js"></script>
 
     <!-- Custom scripts for all pages-->
-    <script src="/resources/js/sb-admin-2.min.js"></script>
+    <script src="${pageContext.request.contextPath}/resources/js/sb-admin-2.min.js"></script>
 
 </body>
-<script src="/resources/js/reply.js"></script>
+<script src="${pageContext.request.contextPath}/resources/js/reply.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
 <script type="text/javascript">
 $(document).ready(function() {
 	console.log(replyService);
 	
 	$("#btnRegfrm").click(function() {
+		$("#myModal").find("input").val("");
+        $("#replyDate").closest("div").hide();
+        $(".btns button").hide()
+        $("#btnReg").show();
         $("#myModal").modal("show");
     })
     
@@ -151,6 +155,36 @@ $(document).ready(function() {
                     $("#myModal").find("input").val("");
                     $("#myModal").modal("hide");
                     showList(1);
+                    
+                    function showList(lastRno, amount) {
+                        replyService.getList({bno:bno, lastRno:lastRno, amount:amount},
+                         function(data) {
+                            console.log(data)
+                             if(!data) {
+                                 return;
+                             }
+                             if(data.length == 0) {
+                                $("#btnShowMore").text("댓글이 없습니다.").prop("disabled", true);
+                                return;
+                             }
+                             var str ="";
+                             for(var i in data) {
+                                 str +=' <li class="list-group-item" data-rno="'+data[i].rno+'">'
+                                 str +='    <div class="clearfix">'
+                                 str +='        <div class="float-left text-dark font-weight-bold">'+data[i].replyer+'</div>'
+                                 str +='            <div class="float-right">'+replyService.displayTime(data[i].replyDate)+'</div>'
+                                 str +='        </div>'
+                                 str +='        <div>'+data[i].reply+'</div>'
+                                 str +='</li>'
+                             }
+                             $("#btnShowMore").text("더보기").prop("disabled", false);
+                             $ul.append(str);
+                             console.log(amount);
+                           }
+                        )
+                    }
+                    
+                    
                 }
             );
         })
@@ -192,12 +226,9 @@ $(document).ready(function() {
                   })
           })
 });
-
 console.log("================");
 console.log("JS Test");
-
 var bnoValue = '<c:out value="${board.bno}"/>';
-
 /* replyService.remove(23, function(count) {
 	console.log(count);
 	
@@ -207,7 +238,6 @@ var bnoValue = '<c:out value="${board.bno}"/>';
 }, function(err) {
 	alert('Error...');
 });
-
 replyService.update({
 	rno : 22,
 	bno : bnoValue,
@@ -215,17 +245,14 @@ replyService.update({
 }, function(result){
 	alert("수정 완료...");
 });
-
 replyService.get(10, function(data){
 	console.log(data);
 })
-
 replyService.getList({bno:bnoValue, page:1}, function(list){
 	for(var i=0, len= list.length||0; i<len; i++) {
 		console.log(list[i]);
 	}
 });
-
 replyService.add(
 	{reply:"ts Test", replyer:"tester", bno:bnoValue}
 	,
@@ -246,7 +273,6 @@ $(document).ready(function(){
 		operForm.submit();	
 	});
 });
-
 $(function() {
 	console.log(replyService);
     var bno = '${board.bno}';

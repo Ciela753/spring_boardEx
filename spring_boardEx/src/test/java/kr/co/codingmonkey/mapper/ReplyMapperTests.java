@@ -27,7 +27,7 @@ public class ReplyMapperTests {
 			
 		ReplyVO vo = new ReplyVO();
 		
-		vo.setBno(213L);
+		vo.setBno(768L);
 		vo.setReply("댓글 테스트" + i);
 		vo.setReplyer("replyer"+i);
 		
