@@ -1,5 +1,7 @@
 package kr.co.codingmonkey.domain;
 
+import org.springframework.web.util.UriComponentsBuilder;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -25,5 +27,13 @@ public class Criteria {
 	
 	public String[] getTypeArr() {
 		return type == null? new String[] {} : type.split("");
+	}
+	public String getParams() {
+		return UriComponentsBuilder.newInstance()
+				.queryParam("pageNum", pageNum)
+				.queryParam("amount", amount)
+				.queryParam("type", type)
+				.queryParam("keyword", keyword)
+				.build().toString();
 	}
 }

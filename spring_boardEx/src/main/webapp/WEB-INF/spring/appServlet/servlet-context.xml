@@ -23,13 +23,16 @@
 	
 	<context:component-scan base-package="kr.co.codingmonkey.controller" />
 	
-	<beans:bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+	<beans:bean id="multipartResolver" class="org.springframework.web.multipart.support.StandardServletMultipartResolver"></beans:bean>
+	<!-- <beans:bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
 		<beans:property name="maxUploadSize" value="104857560"></beans:property>
 		<beans:property name="maxUploadSizePerFile" value="2097152"></beans:property>
 		<beans:property name="uploadTempDir" value="file:/C:\Users\USER\Documents\study\upload\tmp"></beans:property>
 		<beans:property name="maxInMemorySize" value="10485756"></beans:property>
-	</beans:bean>
+	</beans:bean> -->
 	
 	<context:component-scan base-package="kr.co.codingmonkey.exception"></context:component-scan>
+	<context:component-scan base-package="kr.co.codingmonkey.controller"></context:component-scan>
+	
 	
 </beans:beans>

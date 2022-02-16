@@ -2,6 +2,7 @@ package kr.co.codingmonkey.service;
 
 import java.util.List;
 
+import kr.co.codingmonkey.domain.BoardAttachVO;
 import kr.co.codingmonkey.domain.BoardVO;
 import kr.co.codingmonkey.domain.Criteria;
 
@@ -19,4 +20,6 @@ public interface BoardService {
 	public List<BoardVO> getList(Criteria cri);
 	
 	public int getTotal(Criteria cri);
+
+	public List<BoardAttachVO> getAttachList(Long bno);
 }

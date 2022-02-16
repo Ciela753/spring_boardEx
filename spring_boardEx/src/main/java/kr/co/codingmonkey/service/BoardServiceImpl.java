@@ -4,9 +4,12 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import kr.co.codingmonkey.domain.BoardAttachVO;
 import kr.co.codingmonkey.domain.BoardVO;
 import kr.co.codingmonkey.domain.Criteria;
+import kr.co.codingmonkey.mapper.BoardAttachMapper;
 import kr.co.codingmonkey.mapper.BoardMapper;
 import lombok.AllArgsConstructor;
 import lombok.Setter;
@@ -19,11 +22,22 @@ public class BoardServiceImpl implements BoardService {
 	@Setter @Autowired
 	private BoardMapper mapper;
 	
+	@Setter @Autowired
+	private BoardAttachMapper attachMapper;
+	
+	@Transactional
 	@Override
 	public void register(BoardVO board) {
 		log.info("register..........." + board);
 		
 		mapper.insertSelectKey(board);
+		
+		board.getAttachList().forEach(attach -> {
+			attach.setBno(board.getBno());
+			attachMapper.insert(attach);
+			log.info("=======================");
+			log.info("board bno : "+board.getBno());
+		});
 	}
 
 	@Override
@@ -39,9 +53,13 @@ public class BoardServiceImpl implements BoardService {
 		return mapper.update(board) == 1;
 	}
 
+	@Transactional
 	@Override
 	public boolean remove(Long bno) {
 		log.info("remove........." + bno);
+		
+		attachMapper.deleteAll(bno);
+		
 		return mapper.delete(bno)==1;
 	}
 
@@ -63,6 +81,13 @@ public class BoardServiceImpl implements BoardService {
 	public int getTotal(Criteria cri) {
 		log.info("get total count");
 		return mapper.getTotalCount(cri);
+	}
+
+	@Override
+	public List<BoardAttachVO> getAttachList(Long bno) {
+		log.info("get Attach list by bno " + bno);
+		
+		return attachMapper.findByBno(bno);
 	}
 
 }

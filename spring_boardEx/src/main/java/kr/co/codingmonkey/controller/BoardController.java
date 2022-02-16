@@ -1,14 +1,27 @@
 package kr.co.codingmonkey.controller;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.List;
+
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import kr.co.codingmonkey.domain.AttachFileDTO;
+import kr.co.codingmonkey.domain.BoardAttachVO;
 import kr.co.codingmonkey.domain.BoardVO;
 import kr.co.codingmonkey.domain.Criteria;
 import kr.co.codingmonkey.domain.PageDTO;
@@ -56,11 +69,17 @@ public class BoardController {
 	//새롭게 등록된 게시물의 번호를 같이 전달하기 위해 redirectAttributes를 쓴다
 	@PostMapping("/register")
 	public String register(BoardVO board, RedirectAttributes rttr) {
+//		
+//		
+//		if(board.getAttachList() != null) {
+//			board.getAttachList().forEach(attach -> log.info(attach));
+//		}
+//		
+
 		log.info("register: "+board);
-		
 		service.register(board);
-		
-		//url상 데이터소멸
+//		url상 데이터소멸
+		log.info("======================");
 		rttr.addFlashAttribute("result", board.getBno());
 		
 		return "redirect:/board/list";
@@ -86,13 +105,42 @@ public class BoardController {
 	}
 	
 	@PostMapping("/remove")
-	public String remove(@RequestParam("bno") Long bno, RedirectAttributes rttr, @ModelAttribute("cri") Criteria cri) {
+	public String remove(@RequestParam("bno") Long bno, RedirectAttributes rttr, @ModelAttribute("cri") Criteria cri, String writer) {
 		log.info("remove........."+bno);
+		List<BoardAttachVO> list = service.getAttachList(bno);
 		if(service.remove(bno)) {
 			rttr.addFlashAttribute("result", "success");
 		}
 		rttr.addAttribute("pageNum", cri.getPageNum());
 		rttr.addAttribute("amount", cri.getAmount());
 		return "redirect:/board/list";
+	}
+	
+	@GetMapping("/display")
+	@ResponseBody
+	public ResponseEntity<byte[]> getFile(String fileName) {
+		log.info("file Name : "+fileName);
+		File file = new File("C:\\upload\\" + fileName);
+		
+		log.info("flie : " + file);
+		
+		ResponseEntity<byte[]> result = null;
+		
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			
+			headers.add("content-Type", Files.probeContentType(file.toPath()));
+			
+			result = new ResponseEntity<byte[]>(FileCopyUtils.copyToByteArray(file), headers, HttpStatus.OK);
+		} catch (IOException e ) {
+			e.printStackTrace();
+		}
+		return result;
+	}
+	
+	@GetMapping("getAttachList/{bno}")
+	public @ResponseBody List<BoardAttachVO> getAttachList(@PathVariable Long bno){
+		log.info("getAttachList "+bno);
+		return service.getAttachList(bno);
 	}
 }

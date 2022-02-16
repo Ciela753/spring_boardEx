@@ -22,7 +22,44 @@
 
     <!-- Custom styles for this template-->
     <link href="${pageContext.request.contextPath}/resources/css/sb-admin-2.min.css" rel="stylesheet">
-
+	<style>
+		.uploadResult {
+		backgrond-color : grey;
+	}
+	.uploadResult ul {
+		displsy:flex;
+		flex-flow:row;
+		justify-content: center;
+		align-items: center;
+	}
+	.uploadResult ul li {
+		list-style: none;
+		padding :10px;
+	}
+	.uploadResult ul li img{
+		width: 30px;
+	}
+	.bigPictureWrapper {
+		position: absolute;
+		display: none;
+		justify-content: center;
+		top: 0%;
+		width: 100%;
+		height: 100%;
+		background-color: grey;
+		z-index:100;
+		background-color: pink;
+	}
+	.bigPicture {
+		position: relative;
+		display:flex;
+		justify-content: center;
+		align-items: center;
+	}
+	img {
+		width:15px;
+	}
+	</style>
 </head>
 
 <body class="bg-gradient-primary">
@@ -61,6 +98,16 @@
                            			<input type='hidden' name='amount' value='<c:out value="${cri.amount}"></c:out>'>
                            		</form>
                             </div>
+                            <!-- File -->
+		                    <div class="card shadow mb-4">
+		                        <div class="card-header py-3">
+		                            <h6 class="m-0 font-weight-bold text-primary">File Attach</h6>
+		                        </div>                       
+			                   <div class="uploadResult">
+									<ul class="list-group">
+									</ul>
+							   </div>
+		                    </div>
                             <div class="card shadow mb-4">
                             <div class="card-header py-3 clearfix">
                                 <h6 class="m-0 font-weight-bold text-primary"><i class="fa fa-comments">Reply</i></h6>
@@ -131,6 +178,64 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
 <script type="text/javascript">
 $(document).ready(function() {
+    
+     var bno = '${board.bno}';
+     var $ul = $("#replyUL");
+    
+     $(".uploadResult").on("click", "li", function(e){
+    	 console.log("view image");
+    	 
+    	 var liObj = $(this);
+    	 
+    	 var path = encodeURIComponent(liObj.data("path")+"/"+liObj.data("uuid")+"_"+liObj.data("filename"));
+    	 
+    	 if(liObj.data("type")){
+    		 showImage(path.replace(new RegExp(/\\/g), "/"));
+    	 } else {
+    		 self.location = "download?fileName="+path;
+    	 }
+     });
+     
+     function showImage(fileCallPath){
+    	 alert(fileCallPath);
+    	 
+    	 $(".bigPictureWrapper").css("display", "flex").show();
+    	 
+    	 $(".bigPicture")
+    	 .html("<img src='/display?fileName="+fileCallPath+"'>")
+    	 .animate({width: '100%', height:'100%'}, 1000);
+     }
+     
+	$.getJSON("/board/getAttachList/"+ bno).done(function(data) {
+	   	 console.log(data);
+	   	 showUploadFile(data);
+      })
+    
+    function showUploadFile(attach) {
+		var str = "";
+		var fileCallPath = encodeURIComponent(attach.uploadPath+ "/S_"+attach.uuid+"_"+attach.filename);
+		for(var i in attach) {
+			str +="<li class='list-group-item'";
+			str +="data-path='" + attach[i].path + "' ";
+			str +="data-uuid='" + attach[i].uuid + "' ";
+			str +="data-filename='" + attach[i].fileName + "' ";
+			str +="data-type='" + attach[i].fileType + "' ";
+			str +="><div>"
+			if(attach.fileType){
+				str += "<img src='/display?fileName="+fileCallPath+"'>";
+				str += "</div>";
+				str +="</li>";
+			} else {
+				str += "<span> "+attach[i].fileName+"</span></br>";
+				str += "<img src='/resources/img/pngegg.png'>";
+				str += "</div>";
+				str +="</li>";
+			}
+			console.log(str);
+			$(".uploadResult ul").append(str);
+		}
+	}
+    
 	console.log(replyService);
 	
 	$("#btnRegfrm").click(function() {
@@ -140,10 +245,6 @@ $(document).ready(function() {
         $("#btnReg").show();
         $("#myModal").modal("show");
     })
-    
-     var bno = '${board.bno}';
-     var $ul = $("#replyUL");
-    
      $("#btnReg").click(function() {
             
             var reply = {reply: $("#reply").val(), replyer:$("#replyer").val(), bno:bno};
@@ -229,38 +330,7 @@ $(document).ready(function() {
 console.log("================");
 console.log("JS Test");
 var bnoValue = '<c:out value="${board.bno}"/>';
-/* replyService.remove(23, function(count) {
-	console.log(count);
-	
-	if(count === "success") {
-		alert("removed");
-	}
-}, function(err) {
-	alert('Error...');
-});
-replyService.update({
-	rno : 22,
-	bno : bnoValue,
-	reply : "Modified Reply...."
-}, function(result){
-	alert("수정 완료...");
-});
-replyService.get(10, function(data){
-	console.log(data);
-})
-replyService.getList({bno:bnoValue, page:1}, function(list){
-	for(var i=0, len= list.length||0; i<len; i++) {
-		console.log(list[i]);
-	}
-});
-replyService.add(
-	{reply:"ts Test", replyer:"tester", bno:bnoValue}
-	,
-	function(result){
-		alert("RESULT: result");
-	}
-);
- */
+
 $(document).ready(function(){
 	var operForm = $("#operForm");
 	

@@ -70,6 +70,19 @@
                            		<button type="list" formaction="list" class="btn btn-default">List</button>
                             </form>
                             </div>
+                            <!-- File -->
+		                    <div class="card shadow mb-4">
+		                        <div class="card-header py-3">
+		                            <h6 class="m-0 font-weight-bold text-primary">File Attach</h6>
+		                        </div>
+		                        <div class="uploadDiv">
+									<input type='file' id="flies" name='uploadFile' multiple>
+								</div>                       
+			                   <div class="uploadResult">
+									<ul class="list-group">
+									</ul>
+							   </div>
+		                    </div>
                         </div>
                     </div>
                 </div>
@@ -89,30 +102,66 @@
     <script src="${pageContext.request.contextPath}/resources/js/sb-admin-2.min.js"></script>
 
 </body>
-<script type="text/javascript">
-	/* $(document).ready(function(){
-		var formObj = $("form");
-		
-		$('button').on("click", function(e){
-			e.preventDefault();
-			
-			var operation = $(this).data("oper");
-			
-			console.log(operation);
-			
-			if(operation === 'remove') {
-				formObj.attr("action", "/board/remove");
-			}else if(operation === 'list'){
-				formObj.attr("action", "/board/list").attr("method", "get");
-				var pageNumTag = $("input[name='pageNum']").clone();
-				var amountTag = $("input[name='amount']").clone();
-		
-				formObj.empty();
-				formObj.append(pageNumTag);
-				formObj.append(amountTag);
+<script>
+$(document).ready(function() {
+    
+    var bno = '${board.bno}';
+    var $ul = $("#replyUL");
+   
+    $(".uploadResult").on("click", "li", function(e){
+   	 console.log("view image");
+   	 
+   	 var liObj = $(this);
+   	 
+   	 var path = encodeURIComponent(liObj.data("path")+"/"+liObj.data("uuid")+"_"+liObj.data("filename"));
+   	 
+   	 if(liObj.data("type")){
+   		 showImage(path.replace(new RegExp(/\\/g), "/"));
+   	 } else {
+   		 self.location = "download?fileName="+path;
+   	 }
+    });
+    
+    function showImage(fileCallPath){
+   	 alert(fileCallPath);
+   	 
+   	 $(".bigPictureWrapper").css("display", "flex").show();
+   	 
+   	 $(".bigPicture")
+   	 .html("<img src='/display?fileName="+fileCallPath+"'>")
+   	 .animate({width: '100%', height:'100%'}, 1000);
+    }
+    
+	$.getJSON("/board/getAttachList/"+ bno).done(function(data) {
+	   	 console.log(data);
+	   	 showUploadFile(data);
+     })
+   
+   function showUploadFile(attach) {
+		var str = "";
+		var fileCallPath = encodeURIComponent(attach.uploadPath+ "/S_"+attach.uuid+"_"+attach.filename);
+		for(var i in attach) {
+			str +="<li class='list-group-item'";
+			str +="data-path='" + attach[i].path + "' ";
+			str +="data-uuid='" + attach[i].uuid + "' ";
+			str +="data-filename='" + attach[i].fileName + "' ";
+			str +="data-type='" + attach[i].fileType + "' ";
+			str +="><div>"
+			if(attach.fileType){
+				str += "<img src='/display?fileName="+fileCallPath+"'>";
+				str += "</div>";
+				str +="</li>";
+			} else {
+				str += "<span> "+attach[i].fileName+"</span></br>";
+				str += "<img src='/resources/img/pngegg.png'>";
+				str += "</div>";
+				str +="</li>";
 			}
-			formObj.submit();
-		})
-	}) */
+			console.log(str);
+			$(".uploadResult ul").append(str);
+		}
+	}
+}
+)
 </script>
 </html>
